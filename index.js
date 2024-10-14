@@ -155,31 +155,34 @@ Primary_Physician, Date_Of_Visit, Additional_Data, DateTime)
             }
             })
             
+app.post("/api/deletepatient", async(req, res) => {
+const {id} = req.body
+try {
+    var poolConnection = await sql.connect(config);
 
-async function connectAndQuery() {
-    try {
-        var poolConnection = await sql.connect(config);
+    console.log("Reading rows from the Table...");
+    var resultSet = await poolConnection.request().query(`Delete from meddeskainfc where id='${id}'`);//meddeskainfc meddeskaiqr
 
-        console.log("Reading rows from the Table...");
-        var resultSet = await poolConnection.request().query(`SELECT * from meddeskainfc`);//meddeskainfc meddeskaiqr
+    console.log(`${resultSet.recordset.length} rows returned.`);
 
-        console.log(`${resultSet.recordset.length} rows returned.`);
-
-        // output column headers
-        var columns = "";
-        for (var column in resultSet.recordset.columns) {
-            columns += column + ", ";
-        }
-        console.log("%s\t", columns.substring(0, columns.length - 2));
-
-        // ouput row contents from default record set
-        resultSet.recordset.forEach(row => {
-            console.log("%s\t%s", row);
-        });
-
-        // close connection only when we're certain application is finished
-        poolConnection.close();
-    } catch (err) {
-        console.error(err.message);
+    // output column headers
+    var columns = "";
+    for (var column in resultSet.recordset.columns) {
+        columns += column + ", ";
     }
+    console.log("%s\t", columns.substring(0, columns.length - 2));
+
+    // ouput row contents from default record set
+    resultSet.recordset.forEach(row => {
+       // console.log("%s\t%s", row);
+    });
+
+    // close connection only when we're certain application is finished
+    poolConnection.close();
+    res.send(resultSet.recordset)
+
+} catch (err) {
+    console.error(err.message);
+    res.send({message:err.message})
 }
+            })
