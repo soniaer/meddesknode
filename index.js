@@ -186,3 +186,35 @@ try {
     res.send({message:err.message})
 }
             })
+
+
+            app.post("/api/deleteproduct", async(req, res) => {
+                const {id} = req.body
+                try {
+                    var poolConnection = await sql.connect(config);
+                
+                    console.log("Reading rows from the Table...");
+                    var resultSet = await poolConnection.request().query(`Delete from meddeskaiqr where id='${id}'`);//meddeskainfc meddeskaiqr
+                
+                    console.log(`${resultSet.recordset.length} rows returned.`);
+                
+                    // output column headers
+                    var columns = "";
+                    for (var column in resultSet.recordset.columns) {
+                        columns += column + ", ";
+                    }
+                                    
+                    // ouput row contents from default record set
+                    resultSet.recordset.forEach(row => {
+                       // console.log("%s\t%s", row);
+                    });
+                
+                    // close connection only when we're certain application is finished
+                    poolConnection.close();
+                    res.send(resultSet.recordset)
+                
+                } catch (err) {
+                    console.error(err.message);
+                    res.send({message:err.message})
+                }
+                            })
