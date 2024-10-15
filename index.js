@@ -181,25 +181,35 @@ res.send({message:err.message})
 }
 })
 
-app.get("/api/getscannedcode", async(req, res) => {
-
-try {
-var poolConnection = await sql.connect(config);
-var resultSet = await poolConnection.request().query(`SELECT meddeskainfc.Patient_Id as Nfc_code, meddeskaiqr.Barcode_Number as Barcode
-    FROM meddeskainfc
-    CROSS JOIN meddeskaiqr`);// meddeskaiqr
-console.log(`${resultSet.recordset.length} rows returned.`)
-resultSet.recordset.forEach(row => {
-});
-poolConnection.close();
-if(resultSet.recordset.length == 0){
-res.send({message:"No Data"})
-}else{
-res.send(resultSet?.recordset[resultSet?.recordset?.length-1])
-}
-} 
-catch (err) {
-console.error(err.message);
-res.send({message:err.message})
-}
-})
+app.get("/api/getscannedcode", async (req, res) => {
+    try {
+      var poolConnection = await sql.connect(config);
+  
+      // Query to compare the latest DateTime values and select from the appropriate table
+      var resultSet = await poolConnection.request().query(`
+        SELECT 
+          CASE 
+            WHEN meddeskaiqr.DateTime > meddeskainfc.DateTime THEN meddeskaiqr.Barcode_Number 
+            ELSE meddeskainfc.Patient_Id 
+          END AS code
+        FROM meddeskainfc
+        CROSS JOIN meddeskaiqr
+        WHERE meddeskaiqr.DateTime = (SELECT MAX(DateTime) FROM meddeskaiqr)
+        OR meddeskainfc.DateTime = (SELECT MAX(DateTime) FROM meddeskainfc)
+      `);
+  
+      console.log(`${resultSet.recordset.length} rows returned.`);
+  
+      poolConnection.close();
+  
+      if (resultSet.recordset.length == 0) {
+        res.send({ message: "No Data" });
+      } else {
+        // Send the result with the latest code
+        res.send(resultSet.recordset[0]);
+      }
+    } catch (err) {
+      console.error(err.message);
+      res.send({ message: err.message });
+    }
+  });
