@@ -30,7 +30,7 @@ res.send({message:"testing"})
 
 app.get("/api/getdata", async(req, res) => {
 try {
-var poolConnection = sql.connect(config);
+var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(`SELECT * from meddeskainfc`);//meddeskainfc meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`);
 poolConnection.close();
@@ -45,7 +45,7 @@ app.post("/api/addpatient", async(req, res) => {
 const {IdCard_Number,Patient_Name,First_Name,Last_Name,Date_Of_Birth,Patient_Id,Age,Height,Weight,Address,Phone_Number,
 Primary_Physician,Date_Of_Visit,Additional_Data,DateTime,Image} =req?.body
 try {
-var poolConnection = sql.connect(config);
+var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(
 `Insert into meddeskainfc(IdCard_Number, Patient_Name, First_Name, Last_Name,
 Date_Of_Birth, Patient_Id, Age, Height, Weight, Address, Phone_Number,
@@ -66,7 +66,7 @@ res.send({message:err.message})
 app.post("/api/addproduct", async(req, res) => {
 const {Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.body
 try {
-var poolConnection = sql.connect(config);
+var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(
 `Insert into meddeskaiqr(Title, Description, Weight, Manufacture,
 Barcode_Number, Data_Sheet, Product_Image, DateTime)
@@ -83,7 +83,7 @@ res.send({message:err.message})
 
 app.get("/api/getproducts", async(req, res) => {
 try {
-var poolConnection = sql.connect(config);
+var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(`SELECT * from meddeskaiqr`);//meddeskainfc meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`);
 poolConnection.close();
@@ -97,7 +97,7 @@ res.send({message:err.message})
 app.post("/api/deletepatient", async(req, res) => {
 const {id} = req.body
 try {
-var poolConnection = sql.connect(config);
+var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(`Delete from meddeskainfc where id='${id}'`);//meddeskainfc meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`);
 poolConnection.close();
@@ -111,7 +111,7 @@ res.send({message:err.message})
 app.post("/api/deleteproduct", async(req, res) => {
 const {id} = req.body
 try {
-var poolConnection = sql.connect(config);
+var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(`Delete from meddeskaiqr where id='${id}'`);//meddeskainfc meddeskaiqr
 poolConnection.close();
 res.send(resultSet.recordset)
@@ -124,7 +124,7 @@ res.send({message:err.message})
 app.post("/api/getscannedproducts", async(req, res) => {
 const {Barcode_Number} = req.body;
 try {
-var poolConnection = sql.connect(config);
+var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(`SELECT * from meddeskaiqr where Barcode_Number='${Barcode_Number}'`);//meddeskainfc meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
@@ -144,7 +144,7 @@ res.send({message:err.message})
 app.post("/api/getscanneddata", async(req, res) => {
 const {Patient_Id} = req.body;
 try {
-var poolConnection = sql.connect(config);
+var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(`SELECT * from meddeskainfc where Patient_Id='${Patient_Id}'`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
@@ -164,7 +164,7 @@ res.send({message:err.message})
 app.post("/api/getqrcode", async(req, res) => {
 const {Barcode} = req.body;
 try {
-var poolConnection = sql.connect(config);
+var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(`SELECT RIGHT(Barcode_Number,2) from meddeskaiqr where Barcode_Number='${Barcode}'`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
@@ -184,7 +184,7 @@ res.send({message:err.message})
 app.post("/api/getnfccode", async(req, res) => {
 const {Patient_Id} = req.body;
 try {
-var poolConnection = sql.connect(config);
+var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(`SELECT RIGHT(Patient_Id,2) from meddeskainfc where Patient_Id='${Patient_Id}'`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
