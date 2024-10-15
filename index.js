@@ -43,7 +43,7 @@ res.send({message:err.message})
 
 app.post("/api/addpatient", async(req, res) => {
 const {IdCard_Number,Patient_Name,First_Name,Last_Name,Date_Of_Birth,Patient_Id,Age,Height,Weight,Address,Phone_Number,
-Primary_Physician,Date_Of_Visit,Additional_Data,DateTime,Image} =req?.bod
+Primary_Physician,Date_Of_Visit,Additional_Data,DateTime,Image} =req?.body
 try {
 var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(
@@ -64,7 +64,7 @@ res.send({message:err.message})
 })
 
 app.post("/api/addproduct", async(req, res) => {
-const {Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.bod
+const {Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.body
 try {
 var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(
