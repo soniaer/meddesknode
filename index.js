@@ -181,11 +181,11 @@ res.send({message:err.message})
 }
 })
 
-app.post("/api/getnfccode", async(req, res) => {
-const {Patient_Id} = req.body;
+app.get("/api/getscannedcode", async(req, res) => {
+
 try {
 var poolConnection = await sql.connect(config);
-var resultSet = await poolConnection.request().query(`SELECT Patient_Id from meddeskainfc`);// meddeskaiqr
+var resultSet = await poolConnection.request().query(`SELECT Patient_Id from meddeskainfc UNION SELECT Barcode_Number from meddeskaiqr`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
 });
@@ -193,7 +193,7 @@ poolConnection.close();
 if(resultSet.recordset.length == 0){
 res.send({message:"No Data"})
 }else{
-res.send({NFCcode:resultSet?.recordset[resultSet?.recordset?.length-1]?.Patient_Id?.slice(-2)})
+res.send(resultSet?.recordset[resultSet?.recordset?.length-1])
 }
 } 
 catch (err) {
