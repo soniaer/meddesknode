@@ -188,14 +188,11 @@ app.get("/api/getscannedcode", async (req, res) => {
       // Query to compare the latest DateTime values and select from the appropriate table
       var resultSet = await poolConnection.request().query(`
         SELECT 
-          CASE 
-            WHEN meddeskaiqr.DateTime > meddeskainfc.DateTime THEN meddeskaiqr.Barcode_Number 
-            ELSE meddeskainfc.Patient_Id 
-          END AS code
-        FROM meddeskainfc
-        CROSS JOIN meddeskaiqr
-        WHERE meddeskaiqr.DateTime = (SELECT MAX(DateTime) FROM meddeskaiqr)
-        OR meddeskainfc.DateTime = (SELECT MAX(DateTime) FROM meddeskainfc)
+      CASE 
+          WHEN (SELECT MAX(DateTime) FROM meddeskaiqr) > (SELECT MAX(DateTime) FROM meddeskainfc) 
+          THEN (SELECT Barcode_Number FROM meddeskaiqr WHERE DateTime = (SELECT MAX(DateTime) FROM meddeskaiqr)) 
+          ELSE (SELECT Patient_Id FROM meddeskainfc WHERE DateTime = (SELECT MAX(DateTime) FROM meddeskainfc)) 
+      END AS code
       `);
   
       console.log(`${resultSet.recordset.length} rows returned.`);
