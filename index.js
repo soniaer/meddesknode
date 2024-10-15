@@ -173,7 +173,7 @@ poolConnection.close();
 if(resultSet.recordset.length == 0){
 res.send({message:"No Data"})
 }else{
-res.send(resultSet?.recordset[resultSet?.recordset?.length-1])
+res.send({BARCODE:resultSet?.recordset[resultSet?.recordset?.length-1]})
 }
 } catch (err) {
 console.error(err.message);
@@ -193,7 +193,7 @@ poolConnection.close();
 if(resultSet.recordset.length == 0){
 res.send({message:"No Data"})
 }else{
-res.send(resultSet?.recordset[resultSet?.recordset?.length-1])
+res.send({NFC_CODE:resultSet?.recordset[resultSet?.recordset?.length-1]})
 }
 } 
 catch (err) {
