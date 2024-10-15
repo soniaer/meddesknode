@@ -165,7 +165,7 @@ app.post("/api/getqrcode", async(req, res) => {
 const {Barcode} = req.body;
 try {
 var poolConnection = await sql.connect(config);
-var resultSet = await poolConnection.request().query(`SELECT RIGHT(Barcode_Number,2) from meddeskaiqr where Barcode_Number='${Barcode}'`);// meddeskaiqr
+var resultSet = await poolConnection.request().query(`SELECT Barcode_Number from meddeskaiqr where Barcode_Number='${Barcode}'`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
 });
@@ -173,7 +173,7 @@ poolConnection.close();
 if(resultSet.recordset.length == 0){
 res.send({message:"No Data"})
 }else{
-res.send({BARCODE:resultSet?.recordset[resultSet?.recordset?.length-1]})
+res.send({Barcode:resultSet?.recordset[resultSet?.recordset?.length-1]?.Barcode_Number?.slice(-2)})
 }
 } catch (err) {
 console.error(err.message);
@@ -185,7 +185,7 @@ app.post("/api/getnfccode", async(req, res) => {
 const {Patient_Id} = req.body;
 try {
 var poolConnection = await sql.connect(config);
-var resultSet = await poolConnection.request().query(`SELECT RIGHT(Patient_Id,2) from meddeskainfc where Patient_Id='${Patient_Id}'`);// meddeskaiqr
+var resultSet = await poolConnection.request().query(`SELECT Patient_Id from meddeskainfc where Patient_Id='${Patient_Id}'`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
 });
@@ -193,7 +193,7 @@ poolConnection.close();
 if(resultSet.recordset.length == 0){
 res.send({message:"No Data"})
 }else{
-res.send({NFC_CODE:resultSet?.recordset[resultSet?.recordset?.length-1]})
+res.send({NFCcode:resultSet?.recordset[resultSet?.recordset?.length-1]?.Patient_Id?.slice(-2)})
 }
 } 
 catch (err) {
