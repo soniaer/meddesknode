@@ -185,7 +185,7 @@ app.get("/api/getscannedcode", async(req, res) => {
 
 try {
 var poolConnection = await sql.connect(config);
-var resultSet = await poolConnection.request().query(`SELECT meddeskainfc.Patient_Id, meddeskaiqr.Barcode_Number
+var resultSet = await poolConnection.request().query(`SELECT meddeskainfc.Patient_Id as Nfc_code, meddeskaiqr.Barcode_Number as Barcode
     FROM meddeskainfc
     CROSS JOIN meddeskaiqr`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
