@@ -165,7 +165,7 @@ app.post("/api/getqrcode", async(req, res) => {
 const {Barcode} = req.body;
 try {
 var poolConnection = await sql.connect(config);
-var resultSet = await poolConnection.request().query(`SELECT Barcode_Number from meddeskaiqr where Barcode_Number='${Barcode}'`);// meddeskaiqr
+var resultSet = await poolConnection.request().query(`SELECT Barcode_Number from meddeskaiqr`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
 });
@@ -185,7 +185,7 @@ app.post("/api/getnfccode", async(req, res) => {
 const {Patient_Id} = req.body;
 try {
 var poolConnection = await sql.connect(config);
-var resultSet = await poolConnection.request().query(`SELECT Patient_Id from meddeskainfc where Patient_Id='${Patient_Id}'`);// meddeskaiqr
+var resultSet = await poolConnection.request().query(`SELECT Patient_Id from meddeskainfc`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
 });
