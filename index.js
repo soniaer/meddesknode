@@ -165,7 +165,7 @@ app.post("/api/getqrcode", async(req, res) => {
 const {scannedcode} = req.body;
 try {
 var poolConnection = sql.connect(config);
-var resultSet = await poolConnection.request().query(`SELECT Barcode_Number from meddeskaiqr where Barcode_Number='${scannedcode}'`);// meddeskaiqr
+var resultSet = await poolConnection.request().query(`SELECT RIGHT(Barcode_Number,2) from meddeskaiqr where Barcode_Number='${scannedcode}'`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
 });
@@ -185,7 +185,7 @@ app.post("/api/getnfccode", async(req, res) => {
 const {scannedcode} = req.body;
 try {
 var poolConnection = sql.connect(config);
-var resultSet = await poolConnection.request().query(`SELECT Patient_Id from meddeskainfc where Patient_Id='${scannedcode}'`);// meddeskaiqr
+var resultSet = await poolConnection.request().query(`SELECT RIGHT(Patient_Id,2) from meddeskainfc where Patient_Id='${scannedcode}'`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
 });
@@ -207,7 +207,7 @@ app.get("/api/getallqrcode", async(req, res) => {
 
 try {
 var poolConnection = sql.connect(config);
-var resultSet = await poolConnection.request().query(`SELECT Barcode_Number from meddeskaiqr`);// meddeskaiqr
+var resultSet = await poolConnection.request().query(`SELECT RIGHT(Barcode_Number,2) from meddeskaiqr`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
 });
@@ -227,7 +227,7 @@ app.get("/api/getallnfccode", async(req, res) => {
 const {scannedcode} = req.body;
 try {
 var poolConnection = sql.connect(config);
-var resultSet = await poolConnection.request().query(`SELECT Patient_Id from meddeskainfc`);// meddeskaiqr
+var resultSet = await poolConnection.request().query(`SELECT RIGHT(Patient_Id,2) from meddeskainfc`);// meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`)
 resultSet.recordset.forEach(row => {
 });
