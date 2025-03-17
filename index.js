@@ -94,6 +94,38 @@ res.send({message:err.message})
 }
 })
 
+app.get("/api/updateproducts", async(req, res) => {
+  const {id,Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.body
+  try {
+  var poolConnection = await sql.connect(config);
+  var resultSet = await poolConnection.request().query(`update meddeskaiqr set Title='${Title}', Description='${Description}', Weight='${Weight}', Manufacture='${Manufacture}',
+  Barcode_Number='${Barcode_Number}', Data_Sheet='${Data_Sheet}', Product_Image='${Product_Image}', DateTime='${DateTime}' where id='${id}'`);//meddeskainfc meddeskaiqr
+  console.log(`${resultSet.recordset.length} rows returned.`);
+  poolConnection.close();
+  res.send(resultSet.recordset)
+  } catch (err) {
+  console.error(err.message);
+  res.send({message:err.message})
+  }
+  })
+
+  app.get("/api/updatepatients", async(req, res) => {
+    const {id,IdCard_Number,Patient_Name,First_Name,Last_Name,Date_Of_Birth,Patient_Id,Age,Height,Weight,Address,Phone_Number,
+      Primary_Physician,Date_Of_Visit,Additional_Data,DateTime,Image} =req?.body;
+    try {
+    var poolConnection = await sql.connect(config);
+    var resultSet = await poolConnection.request().query(`update meddeskainfc set IdCard_Number='${IdCard_Number}', Patient_Name='${Patient_Name}', First_Name='${First_Name}',
+    Last_Name='${Last_Name}', Date_Of_Birth='${Date_Of_Birth}', Patient_Id='${Patient_Id}', Age='${Age}', Height='${Height}', Weight='${Weight}', Address='${Address}', Phone_Number='${Phone_Number}',
+    Primary_Physician='${Primary_Physician}', Date_Of_Visit='${Date_Of_Visit}', Additional_Data='${Additional_Data}', DateTime='${DateTime}', Image='${Image}' where id='${id}'`);//meddeskainfc meddeskaiqr
+    console.log(`${resultSet.recordset.length} rows returned.`);
+    poolConnection.close();
+    res.send(resultSet.recordset)
+    } catch (err) {
+    console.error(err.message);
+    res.send({message:err.message})
+    }
+    })
+
 app.post("/api/deletepatient", async(req, res) => {
 const {id} = req.body
 try {
