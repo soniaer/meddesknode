@@ -94,7 +94,7 @@ res.send({message:err.message})
 }
 })
 
-app.get("/api/updateproducts", async(req, res) => {
+app.post("/api/updateproducts", async(req, res) => {
   const {id,Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.body
   try {
   var poolConnection = await sql.connect(config);
@@ -109,7 +109,7 @@ app.get("/api/updateproducts", async(req, res) => {
   }
   })
 
-  app.get("/api/updatepatients", async(req, res) => {
+  app.post("/api/updatepatients", async(req, res) => {
     const {id,IdCard_Number,Patient_Name,First_Name,Last_Name,Date_Of_Birth,Patient_Id,Age,Height,Weight,Address,Phone_Number,
       Primary_Physician,Date_Of_Visit,Additional_Data,DateTime,Image} =req?.body;
     try {
