@@ -70,7 +70,7 @@ var poolConnection = await sql.connect(config);
 const binaryData = Data_Sheet ? Buffer.from(new Uint8Array(Data_Sheet)) : null;
 var resultSet = await poolConnection.request().query(
 `Insert into meddeskaiqr(Title, Description, Weight, Manufacture,
-Barcode_Number, Data_Sheet, Product_Image, DateTime)
+Barcode_Number, Data_sheet_binary, Product_Image, DateTime)
 Values('${Title}','${Description}','${Weight}','${Manufacture}','${Barcode_Number}','${binaryData}',
 '${Product_Image}','${DateTime}')`);//meddeskainfc meddeskaiqr
 console.log(`${resultSet} rows returned.`);
@@ -135,7 +135,7 @@ var poolConnection = await sql.connect(config);
 var resultSet = await poolConnection.request().query(`Delete from meddeskainfc where id='${id}'`);//meddeskainfc meddeskaiqr
 console.log(`${resultSet.recordset.length} rows returned.`);
 poolConnection.close();
-res.send(resultSet.recordset)
+res.send({message:"deleted succeessfully})
 } catch (err) {
 console.error(err.message);
 res.send({message:err.message})
