@@ -137,20 +137,65 @@ res.send({message:err.message})
 }
 })
 
-app.post("/api/updateproducts", async(req, res) => {
-  const {id,Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.body
-  try {
-  var poolConnection = await sql.connect(config);
-  var resultSet = await poolConnection.request().query(`update meddeskaiqr set Title='${Title}', Description='${Description}', Weight='${Weight}', Manufacture='${Manufacture}',
-  Barcode_Number='${Barcode_Number}', Data_Sheet='${Data_Sheet}', Product_Image='${Product_Image}', DateTime='${DateTime}' where id='${id}'`);//meddeskainfc meddeskaiqr
-  console.log(`${resultSet.recordset.length} rows returned.`);
-  poolConnection.close();
-  res.send(resultSet.recordset)
-  } catch (err) {
-  console.error(err.message);
-  res.send({message:err.message})
-  }
-  })
+// app.post("/api/updateproducts", async(req, res) => {
+//   const {id,Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.body
+//   try {
+//   var poolConnection = await sql.connect(config);
+//   var resultSet = await poolConnection.request().query(`update meddeskaiqr set Title='${Title}', Description='${Description}', Weight='${Weight}', Manufacture='${Manufacture}',
+//   Barcode_Number='${Barcode_Number}', Data_Sheet='${Data_Sheet}', Product_Image='${Product_Image}', DateTime='${DateTime}' where id='${id}'`);//meddeskainfc meddeskaiqr
+//   console.log(`${resultSet.recordset.length} rows returned.`);
+//   poolConnection.close();
+//   res.send(resultSet.recordset)
+//   } catch (err) {
+//   console.error(err.message);
+//   res.send({message:err.message})
+//   }
+//   })
+
+app.post("/api/updateproduct", async (req, res) => {
+    try {
+        const { id, Title, Description, Weight, Manufacture, Barcode_Number, Data_Sheet, Product_Image, DateTime } = req.body;
+
+        var poolConnection = await sql.connect(config);
+
+        // Validate and convert Data_Sheet to Buffer
+        let binaryData = null;
+        if (Array.isArray(Data_Sheet)) {
+            binaryData = Buffer.from(Data_Sheet); // Ensure it's an array of numbers
+        }
+
+        // Ensure DateTime is a valid JavaScript Date object
+        const dateTimeValue = DateTime ? new Date(DateTime) : new Date();
+
+        // Use parameterized queries to safely update data
+        var request = poolConnection.request();
+        request.input("id", sql.Int, id);
+        request.input("Title", sql.VarChar, Title || null);
+        request.input("Description", sql.VarChar, Description || null);
+        request.input("Weight", sql.VarChar, Weight || null);
+        request.input("Manufacture", sql.VarChar, Manufacture || null);
+        request.input("Barcode_Number", sql.VarChar, Barcode_Number || null);
+        request.input("Data_sheet_binary", sql.VarBinary, binaryData);
+        request.input("Product_Image", sql.VarChar, Product_Image || null);
+        request.input("DateTime", sql.DateTime, dateTimeValue);
+
+        var resultSet = await request.query(`
+            UPDATE meddeskaiqr 
+            SET Title=@Title, Description=@Description, Weight=@Weight, Manufacture=@Manufacture,
+                Barcode_Number=@Barcode_Number, Data_sheet_binary=@Data_sheet_binary, Product_Image=@Product_Image, DateTime=@DateTime 
+            WHERE id=@id
+        `);
+
+        console.log(`${resultSet.rowsAffected} row(s) updated.`);
+        poolConnection.close();
+        res.send({ success: true, message: "Product updated successfully", result: resultSet });
+    } catch (err) {
+        console.error("Error in updateproduct API:", err);
+        res.status(500).send({ message: err.message });
+    }
+});
+
+
 
   app.post("/api/updatepatients", async(req, res) => {
     const {id,IdCard_Number,Patient_Name,First_Name,Last_Name,Date_Of_Birth,Patient_Id,Age,Height,Weight,Address,Phone_Number,
