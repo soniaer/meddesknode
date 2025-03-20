@@ -63,25 +63,64 @@ res.send({message:err.message})
 }
 })
 
-app.post("/api/addproduct", async(req, res) => {
-const {Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.body
-try {
-var poolConnection = await sql.connect(config);
-const binaryData = Data_Sheet ? Buffer.from(new Uint8Array(Data_Sheet)) : null;
-var resultSet = await poolConnection.request().query(
-`Insert into meddeskaiqr(Title, Description, Weight, Manufacture,
-Barcode_Number,Data_sheet_binary, Product_Image, DateTime)
-Values('${Title}','${Description}','${Weight}','${Manufacture}','${Barcode_Number}','${binaryData}',
-'${Product_Image}','${DateTime}')`);//meddeskainfc meddeskaiqr
-console.log(`${resultSet} rows returned.`);
-poolConnection.close();
-res.send(resultSet)
-} catch (err) {
-console.error(err.message);
-res.send({message:err.message})
-}
-})
+// app.post("/api/addproduct", async(req, res) => {
+// const {Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.body
+// try {
+// var poolConnection = await sql.connect(config);
+// const binaryData = Data_Sheet ? Buffer.from(new Uint8Array(Data_Sheet)) : null;
+// var resultSet = await poolConnection.request().query(
+// `Insert into meddeskaiqr(Title, Description, Weight, Manufacture,
+// Barcode_Number,Data_sheet_binary, Product_Image, DateTime)
+// Values('${Title}','${Description}','${Weight}','${Manufacture}','${Barcode_Number}','${binaryData}',
+// '${Product_Image}','${DateTime}')`);//meddeskainfc meddeskaiqr
+// console.log(`${resultSet} rows returned.`);
+// poolConnection.close();
+// res.send(resultSet)
+// } catch (err) {
+// console.error(err.message);
+// res.send({message:err.message})
+// }
+// })
 
+app.post("/api/addproduct", async (req, res) => {
+    try {
+        const { Title, Description, Weight, Manufacture, Barcode_Number, Data_Sheet, Product_Image, DateTime } = req.body;
+
+        var poolConnection = await sql.connect(config);
+
+        // Validate and convert Data_Sheet to Buffer
+        let binaryData = null;
+        if (Array.isArray(Data_Sheet)) {
+            binaryData = Buffer.from(Data_Sheet); // Ensure it's an array of numbers
+        }
+
+        // Ensure DateTime is a valid JavaScript Date object
+        const dateTimeValue = DateTime ? new Date(DateTime) : new Date();
+
+        // Use parameterized queries to safely insert data
+        var request = poolConnection.request();
+        request.input("Title", sql.VarChar, Title || null);
+        request.input("Description", sql.VarChar, Description || null);
+        request.input("Weight", sql.VarChar, Weight || null);
+        request.input("Manufacture", sql.VarChar, Manufacture || null);
+        request.input("Barcode_Number", sql.VarChar, Barcode_Number || null);
+        request.input("Data_sheet_binary", sql.VarBinary, binaryData);
+        request.input("Product_Image", sql.VarChar, Product_Image || null);
+        request.input("DateTime", sql.DateTime, dateTimeValue);
+
+        var resultSet = await request.query(`
+            INSERT INTO meddeskaiqr (Title, Description, Weight, Manufacture, Barcode_Number, Data_sheet_binary, Product_Image, DateTime)
+            VALUES (@Title, @Description, @Weight, @Manufacture, @Barcode_Number, @Data_sheet_binary, @Product_Image, @DateTime)
+        `);
+
+        console.log(`${resultSet.rowsAffected} row(s) inserted.`);
+        poolConnection.close();
+        res.send({ success: true, result: resultSet });
+    } catch (err) {
+        console.error("Error in addproduct API:", err);
+        res.status(500).send({ message: err.message });
+    }
+});
 
 
 
