@@ -84,9 +84,9 @@ res.send({message:err.message})
 app.post("/api/addproduct", async (req, res) => {
     try {
         const { Title, Description, Weight, Manufacture, Barcode_Number, Data_Sheet, Product_Image, DateTime } = req.body;
-        
-        // Convert Base64 string to binary
-        const binaryData = Data_Sheet ? Buffer.from(Data_Sheet, "base64") : null;
+
+        // Convert array (sent from React) to binary buffer
+        const binaryData = Data_Sheet ? Buffer.from(new Uint8Array(Data_Sheet)) : null;
 
         var poolConnection = await sql.connect(config);
         var request = poolConnection.request();
