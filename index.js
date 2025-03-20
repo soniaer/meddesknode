@@ -63,25 +63,59 @@ res.send({message:err.message})
 }
 })
 
-app.post("/api/addproduct", async(req, res) => {
-const {Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.body
-try {
-var poolConnection = await sql.connect(config);
-const binaryData = Data_Sheet ? Buffer.from(new Uint8Array(Data_Sheet)) : null;
-var resultSet = await poolConnection.request().query(
-`Insert into meddeskaiqr(Title, Description, Weight, Manufacture,
-Barcode_Number,Data_sheet_binary, Product_Image, DateTime)
-Values('${Title}','${Description}','${Weight}','${Manufacture}','${Barcode_Number}','${binaryData}',
-'${Product_Image}','${DateTime}')`);//meddeskainfc meddeskaiqr
-console.log(`${resultSet} rows returned.`);
-poolConnection.close();
-res.send(resultSet)
-} catch (err) {
-console.error(err.message);
-res.send({message:err.message})
-}
-})
+// app.post("/api/addproduct", async(req, res) => {
+// const {Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.body
+// try {
+// var poolConnection = await sql.connect(config);
+// const binaryData = Data_Sheet ? Buffer.from(new Uint8Array(Data_Sheet)) : null;
+// var resultSet = await poolConnection.request().query(
+// `Insert into meddeskaiqr(Title, Description, Weight, Manufacture,
+// Barcode_Number,Data_sheet_binary, Product_Image, DateTime)
+// Values('${Title}','${Description}','${Weight}','${Manufacture}','${Barcode_Number}','${binaryData}',
+// '${Product_Image}','${DateTime}')`);//meddeskainfc meddeskaiqr
+// console.log(`${resultSet} rows returned.`);
+// poolConnection.close();
+// res.send(resultSet)
+// } catch (err) {
+// console.error(err.message);
+// res.send({message:err.message})
+// }
+// })
 
+
+app.post("/api/addproduct", async (req, res) => {
+    const { Title, Description, Weight, Manufacture, Barcode_Number, Data_Sheet, Product_Image, DateTime } = req?.body;
+
+    try {
+        var poolConnection = await sql.connect(config);
+
+        // Convert Data_Sheet to Buffer only if it exists
+        const binaryData = Data_Sheet ? Buffer.from(new Uint8Array(Data_Sheet)) : null;
+
+        // Use parameterized queries to prevent SQL injection & handle binary data
+        var request = poolConnection.request();
+        request.input("Title", sql.VarChar, Title);
+        request.input("Description", sql.VarChar, Description);
+        request.input("Weight", sql.VarChar, Weight);
+        request.input("Manufacture", sql.VarChar, Manufacture);
+        request.input("Barcode_Number", sql.VarChar, Barcode_Number);
+        request.input("Data_sheet_binary", sql.VarBinary, binaryData);
+        request.input("Product_Image", sql.VarChar, Product_Image);
+        request.input("DateTime", sql.DateTime, DateTime);
+
+        var resultSet = await request.query(
+            `INSERT INTO meddeskaiqr (Title, Description, Weight, Manufacture, Barcode_Number, Data_sheet_binary, Product_Image, DateTime)
+            VALUES (@Title, @Description, @Weight, @Manufacture, @Barcode_Number, @Data_sheet_binary, @Product_Image, @DateTime)`
+        );
+
+        console.log(`${resultSet.rowsAffected} rows inserted.`);
+        poolConnection.close();
+        res.send({ success: true, result: resultSet });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send({ message: err.message });
+    }
+});
 
 app.get("/api/getproducts", async(req, res) => {
 try {
