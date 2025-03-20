@@ -152,7 +152,7 @@ res.send({message:err.message})
 //   }
 //   })
 
-app.post("/api/updateproduct", async (req, res) => {
+app.post("/api/updateproducts", async (req, res) => {
     try {
         const { id, Title, Description, Weight, Manufacture, Barcode_Number, Data_Sheet, Product_Image, DateTime } = req.body;
 
