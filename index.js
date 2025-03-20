@@ -63,58 +63,24 @@ res.send({message:err.message})
 }
 })
 
-// app.post("/api/addproduct", async(req, res) => {
-// const {Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.body
-// try {
-// var poolConnection = await sql.connect(config);
-// var resultSet = await poolConnection.request().query(
-// `Insert into meddeskaiqr(Title, Description, Weight, Manufacture,
-// Barcode_Number, Data_Sheet, Product_Image, DateTime)
-// Values('${Title}','${Description}','${Weight}','${Manufacture}','${Barcode_Number}','${Data_Sheet}',
-// '${Product_Image}','${DateTime}')`);//meddeskainfc meddeskaiqr
-// console.log(`${resultSet} rows returned.`);
-// poolConnection.close();
-// res.send(resultSet)
-// } catch (err) {
-// console.error(err.message);
-// res.send({message:err.message})
-// }
-// })
-
-app.post("/api/addproduct", async (req, res) => {
-    try {
-        const { Title, Description, Weight, Manufacture, Barcode_Number, Data_Sheet, Product_Image, DateTime } = req.body;
-
-        // Convert array (sent from React) to binary buffer
-        const binaryData = Data_Sheet ? Buffer.from(new Uint8Array(Data_Sheet)) : null;
-
-        var poolConnection = await sql.connect(config);
-        var request = poolConnection.request();
-
-        // Use parameters to prevent SQL injection
-        request.input("Title", sql.NVarChar, Title);
-        request.input("Description", sql.NVarChar, Description);
-        request.input("Weight", sql.NVarChar, Weight);
-        request.input("Manufacture", sql.NVarChar, Manufacture);
-        request.input("Barcode_Number", sql.NVarChar, Barcode_Number);
-        request.input("Data_sheet_binary", sql.VarBinary, binaryData);
-        request.input("Product_Image", sql.NVarChar, Product_Image);
-        request.input("DateTime", sql.DateTime, DateTime);
-
-        var resultSet = await request.query(`
-            INSERT INTO meddeskaiqr (Title, Description, Weight, Manufacture, Barcode_Number, Data_sheet_binary, Product_Image, DateTime)
-            VALUES (@Title, @Description, @Weight, @Manufacture, @Barcode_Number, @Data_sheet_binary, @Product_Image, @DateTime)
-        `);
-
-        console.log(`${resultSet.rowsAffected} rows inserted.`);
-        poolConnection.close();
-        res.send({ message: "Product added successfully" });
-
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send({ message: err.message });
-    }
-});
+app.post("/api/addproduct", async(req, res) => {
+const {Title,Description,Weight,Manufacture,Barcode_Number,Data_Sheet,Product_Image,DateTime} =req?.body
+try {
+var poolConnection = await sql.connect(config);
+const binaryData = Data_Sheet ? Buffer.from(new Uint8Array(Data_Sheet)) : null;
+var resultSet = await poolConnection.request().query(
+`Insert into meddeskaiqr(Title, Description, Weight, Manufacture,
+Barcode_Number, Data_Sheet, Product_Image, DateTime)
+Values('${Title}','${Description}','${Weight}','${Manufacture}','${Barcode_Number}','${binaryData}',
+'${Product_Image}','${DateTime}')`);//meddeskainfc meddeskaiqr
+console.log(`${resultSet} rows returned.`);
+poolConnection.close();
+res.send(resultSet)
+} catch (err) {
+console.error(err.message);
+res.send({message:err.message})
+}
+})
 
 
 app.get("/api/getproducts", async(req, res) => {
