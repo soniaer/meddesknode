@@ -15,6 +15,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install system dependencies (for NFC reader)
+        run: |
+          sudo apt update
+          sudo apt install -y libpcsclite1 libpcsclite-dev pcscd build-essential
+          sudo systemctl start pcscd
+          sudo systemctl enable pcscd
       
       - name: Set up Node.js version
         uses: actions/setup-node@v3
@@ -24,6 +31,7 @@ jobs:
       - name: npm install, build, and test
         run: |
           npm install
+          npm rebuild @pokusew/pcsclite --build-from-source
           npm run build --if-present
           npm run test --if-present
 
@@ -52,6 +60,16 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
+      - name: Install system dependencies (for NFC reader)
+        run: |
+          sudo apt update
+          sudo apt install -y libpcsclite1 libpcsclite-dev pcscd build-essential
+          sudo systemctl start pcscd
+          sudo systemctl enable pcscd
+
+      - name: Rebuild pcsclite module
+        run: npm rebuild @pokusew/pcsclite --build-from-source
+      
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
