@@ -57,7 +57,14 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-      
+        
+      - name: Install system dependencies (for NFC reader)
+        run: |
+          sudo apt update
+          sudo apt install -y libpcsclite1 libpcsclite-dev pcscd build-essential
+          sudo systemctl start pcscd
+          sudo systemctl enable pcscd
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
