@@ -2,61 +2,12 @@ const express = require("express");
 const app = express();
 const cors = require("cors"); 
 const sql = require('mssql');
-const http = require("http");
-const WebSocket = require("ws");
-const { NFC } = require("nfc-pcsc");
-const server = http.createServer(app);
-
-// Create WebSocket server
-const wss = new WebSocket.Server({ server });
-
-// Store connected WebSocket clients
-const clients = new Set();
-
-// WebSocket connection event
-wss.on("connection", (ws) => {
-  console.log("WebSocket client connected");
-  clients.add(ws);
-
-  ws.on("close", () => {
-    console.log("WebSocket client disconnected");
-    clients.delete(ws);
-  });
-});
-
-// Initialize NFC Reader
-const nfc = new NFC(); 
-
-nfc.on("reader", (reader) => {
-  console.log(`NFC Reader detected: ${reader.reader.name}`);
-
-  reader.on("card", (card) => {
-    console.log(`Card detected: ${card.uid}`);
-
-    // Broadcast the NFC UID to all WebSocket clients
-    clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify({ nfc_uid: card.uid }));
-      }
-    });
-  });
-
-  reader.on("error", (err) => {
-    console.error(`NFC Reader error: ${err}`);
-  });
-
-  reader.on("end", () => {
-    console.log(`NFC Reader disconnected: ${reader.reader.name}`);
-  });
-});
-
 app.use(cors());
 app.use(express.json({limit: '500mb'}));
 const port = process.env.PORT || 3004;
-// const server = app.listen(port, () =>
-// console.log(`mqttengine app listening on port ${port}!`)
-// );
-server.listen(port, () => console.log(`Server running on port ${port}!`));
+const server = app.listen(port, () =>
+console.log(`mqttengine app listening on port ${port}!`)
+);
 
 const config = {
 user: 'meddeskaiqrnfcserver', // better stored in an app setting such as process.env.DB_USER
