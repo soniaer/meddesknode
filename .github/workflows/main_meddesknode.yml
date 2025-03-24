@@ -15,13 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install system dependencies (for NFC reader)
-        run: |
-          sudo apt update
-          sudo apt install -y libpcsclite1 libpcsclite-dev pcscd build-essential
-          sudo systemctl start pcscd
-          sudo systemctl enable pcscd
-          
+      
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
@@ -57,13 +51,6 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-        
-      - name: Install system dependencies (for NFC reader)
-        run: |
-          sudo apt update
-          sudo apt install -y libpcsclite1 libpcsclite-dev pcscd build-essential
-          sudo systemctl start pcscd
-          sudo systemctl enable pcscd
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
