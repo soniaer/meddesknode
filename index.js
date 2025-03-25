@@ -2,12 +2,23 @@ const express = require("express");
 const app = express();
 const cors = require("cors"); 
 const sql = require('mssql');
+const http = require("http"); // Required for WebSockets
+const { Server } = require("socket.io"); // Import socket.io
 app.use(cors());
 app.use(express.json({limit: '500mb'}));
 const port = process.env.PORT || 3004;
-const server = app.listen(port, () =>
-console.log(`mqttengine app listening on port ${port}!`)
-);
+// const server = app.listen(port, () =>
+// console.log(`mqttengine app listening on port ${port}!`)
+// );
+const server = http.createServer(app); // Create HTTP server
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Allow all origins (modify as needed for security)
+    methods: ["GET", "POST"]
+  }
+});
+
+server.listen(port, () => console.log(`Server running on port ${port}!`));
 
 const config = {
 user: 'meddeskaiqrnfcserver', // better stored in an app setting such as process.env.DB_USER
@@ -27,6 +38,25 @@ console.log("Starting...");
 app.get("/", async(req, res) => {
 res.send({message:"testing"})
 })
+
+io.on("connection", (socket) => {
+  console.log("A client connected");
+  
+  socket.on("disconnect", () => {
+    console.log("A client disconnected");
+  });
+});
+
+// **WebHook to Receive NFC Data and Emit to Frontend**
+app.post("/webhook", (req, res) => {
+  console.log("NFC Data Received:", req.body.uid);
+
+  // Send NFC data to all connected frontend clients in real-time
+  io.emit("nfc_data", req.body.uid);
+
+  res.sendStatus(200);
+});
+
 
 app.get("/api/getdata", async(req, res) => {
 try {
