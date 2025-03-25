@@ -49,14 +49,14 @@ io.on("connection", (socket) => {
 
 // **WebHook to Receive NFC Data and Emit to Frontend**
 app.post("/webhook", (req, res) => {
-  console.log("NFC Data Received:", req.body.uid);
+  const { uid, data } = req.body;
+  console.log("NFC Data Received:", { uid, data });
 
-  // Send NFC data to all connected frontend clients in real-time
-  io.emit("nfc_data", req.body.uid);
+  // Send both UID and full card data to the frontend
+  io.emit("nfc_data", { uid, data });
 
   res.sendStatus(200);
 });
-
 
 app.get("/api/getdata", async(req, res) => {
 try {
