@@ -291,25 +291,58 @@ res.send({message:err.message})
 }
 })
 
-app.post("/api/getscanneddata", async(req, res) => {
-const {Patient_Id} = req.body;
-try {
-var poolConnection = await sql.connect(config);
-var resultSet = await poolConnection.request().query(`SELECT * from meddeskainfc where Patient_Id='${Patient_Id}'`);// meddeskaiqr
-console.log(`${resultSet.recordset.length} rows returned.`)
-resultSet.recordset.forEach(row => {
+// app.post("/api/getscanneddata", async(req, res) => {
+// const {Patient_Id} = req.body;
+// try {
+// var poolConnection = await sql.connect(config);
+// var resultSet = await poolConnection.request().query(`SELECT * from meddeskainfc where Patient_Id='${Patient_Id}'`);// meddeskaiqr
+// console.log(`${resultSet.recordset.length} rows returned.`)
+// resultSet.recordset.forEach(row => {
+// });
+// poolConnection.close();
+// if(resultSet.recordset.length == 0){
+// res.send({message:"No Data"})
+// }else{
+// res.send(resultSet?.recordset[resultSet?.recordset?.length-1])
+// }
+// } catch (err) {
+// console.error(err.message);
+// res.send({message:err.message})
+// }
+// })
+
+app.post("/api/getscanneddata", async (req, res) => {
+  const { nfcData } = req.body; // NFC full data received
+  if (!nfcData) {
+    return res.send({ message: "No NFC data provided" });
+  }
+
+  try {
+    var poolConnection = await sql.connect(config);
+
+    // Fetch all Patient_Ids from the database
+    var resultSet = await poolConnection.request().query("SELECT * FROM meddeskainfc");
+    poolConnection.close();
+
+    if (resultSet.recordset.length === 0) {
+      return res.send({ message: "No Data" });
+    }
+
+    // Find the Patient_Id that exists inside NFC data
+    let matchedPatient = resultSet.recordset.find(row => nfcData.includes(row.Patient_Id));
+
+    if (!matchedPatient) {
+      return res.send({ message: "No Data" });
+    }
+
+    // Maintain the same response structure
+    res.send(matchedPatient);
+
+  } catch (err) {
+    console.error("Database error:", err.message);
+    res.send({ message: err.message });
+  }
 });
-poolConnection.close();
-if(resultSet.recordset.length == 0){
-res.send({message:"No Data"})
-}else{
-res.send(resultSet?.recordset[resultSet?.recordset?.length-1])
-}
-} catch (err) {
-console.error(err.message);
-res.send({message:err.message})
-}
-})
 
 app.post("/api/getqrcode", async(req, res) => {
 const {Barcode} = req.body;
